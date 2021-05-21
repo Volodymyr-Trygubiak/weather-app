@@ -1,6 +1,11 @@
 <template>
-  <div class="city">
-    <i class="far fa-trash-alt edit" ref="edit"></i>
+  <div class="city" @click="goToWeather">
+    <i
+      class="far fa-trash-alt edit"
+      ref="edit"
+      v-if="edit"
+      @click="removeCity"
+    ></i>
     <span>{{ this.city.city }}</span>
     <div class="weather">
       <span>{{ Math.round(this.city.currentWeather.main.temp) }} &deg;</span>
@@ -25,12 +30,51 @@
 </template>
 
 <script>
+import db from "../firebase/firebaseinit";
+
 export default {
   name: "City",
   props: {
     city: {
       type: Object,
       default: () => {},
+    },
+    edit: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      id: null,
+    };
+  },
+
+  created() {},
+
+  methods: {
+    removeCity() {
+      db.collection("cities")
+        .where("city", "==", `${this.city.city}`)
+        .get()
+        .then((docs) => {
+          docs.forEach((doc) => {
+            this.id = doc.id;
+          });
+        })
+        .then(() => {
+          db.collection("cities").doc(this.id).delete();
+        });
+    },
+    goToWeather(e) {
+      if (e.target === this.$refs.edit) {
+        //
+      } else {
+        this.$router.push({
+          name: "Weather",
+          params: { city: this.city.city },
+        });
+      }
     },
   },
 };
@@ -51,11 +95,12 @@ export default {
     border-radius: 0 15px 0 0;
     border: 10px solid rgb(77, 77, 77);
     background-color: rgb(77, 77, 77);
-    z-index: 1;
+    z-index: 2;
     font-size: 20px;
     position: absolute;
     bottom: 0;
     left: 0;
+    cursor: pointer;
   }
 
   span {

@@ -1,7 +1,7 @@
 <template>
   <div class="grid">
     <div class="city-link" v-for="(city, index) in cities" :key="index">
-      <City :city="city" />
+      <City :city="city" :edit="edit" />
     </div>
   </div>
 </template>
@@ -20,6 +20,10 @@ export default {
       type: Array,
       default: () => [],
     },
+    edit: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   created() {
@@ -31,7 +35,7 @@ export default {
 <style lang="scss" scoped>
 .grid {
   display: grid;
-  padding-top: 81px;
+  padding-top: 80px;
   background-color: #31363d;
   width: 100%;
   min-height: 100vh;
