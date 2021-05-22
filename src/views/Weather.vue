@@ -1,17 +1,45 @@
 <template>
-  <h4>Weather</h4>
+  <div class="main">
+    <div class="loading" v-if="loading">
+      <span> </span>
+    </div>
+    <div class="weather" v-else :class="{ day: isDay, night: isNight }">
+      <div class="weather-wrap">
+        <CurrentWeather
+          :isDay="isDay"
+          :isNight="isNight"
+          :currentWeather="currentWeather"
+        />
+        <HourlyWeather :forecast="forecast" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
 import db from "../firebase/firebaseinit";
+import CurrentWeather from "../components/CurrentWeather";
+import HourlyWeather from "../components/HourlyWeather";
 
 export default {
   name: "Weather",
+  components: {
+    CurrentWeather,
+    HourlyWeather
+  },
   props: {
     APIkey: {
       type: String,
       default: "",
+    },
+    isDay: {
+      type: Boolean,
+      default: null,
+    },
+    isNight: {
+      type: Boolean,
+      default: null,
     },
   },
 
@@ -20,11 +48,16 @@ export default {
       forecast: null,
       currentWeather: null,
       loading: true,
+      currentTime: null,
     };
   },
 
   created() {
     this.getWeather();
+  },
+
+  beforeDestroy() {
+    this.$emit("reset-days");
   },
 
   methods: {
@@ -50,18 +83,65 @@ export default {
               })
               .then(() => {
                 this.loading = false;
-                console.log(this.forecast);
-                console.log(this.currentWeather);
+                this.getCurrentTime();
               });
           });
         });
+    },
+    getCurrentTime() {
+      const dateObject = new Date();
+      this.currentTime = dateObject.getHours();
+      const sunrise = new Date(
+        this.currentWeather.sys.sunrise * 1000
+      ).getHours();
+      const sunset = new Date(this.currentWeather.sys.sunset * 1000).getHours();
+      if (this.currentTime > sunrise && this.currentTime < sunset) {
+        this.$emit("is-day");
+      } else {
+        this.$emit("is-night");
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-h4 {
-  padding-top: 100px;
+.loading {
+  @keyframes spin {
+    to {
+      transform: rotateZ(360deg);
+    }
+  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  span {
+    display: block;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border: 2px solid transparent;
+    border-top-color: #142a5f;
+    border-radius: 50%;
+    animation: spin ease 1000ms infinite;
+  }
+}
+
+.weather {
+  transition: 500ms ease;
+  overflow: scroll;
+  width: 100%;
+  height: 100%;
+
+  .weather-wrap {
+    overflow: hidden;
+    max-width: 1024px;
+    margin: 0 auto;
+  }
+}
+::-webkit-scrollbar {
+  width: 0;
 }
 </style>

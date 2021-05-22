@@ -1,8 +1,23 @@
 <template>
   <div class="main">
     <Modal v-if="modalOpen" :APIkey="APIkey" @close-modal="toggleModal" />
-    <Navigation @add-city="toggleModal" @edit-city="toggleEdit" />
-    <router-view :APIkey="APIkey" :cities="cities" :edit="edit" />
+    <Navigation
+      :addCityActive="addCityActive"
+      :isDay="isDay"
+      :isNight="isNight"
+      @add-city="toggleModal"
+      @edit-city="toggleEdit"
+    />
+    <router-view
+      :isDay="isDay"
+      :isNight="isNight"
+      :APIkey="APIkey"
+      :cities="cities"
+      :edit="edit"
+      @is-day="dayTime"
+      @is-night="dayNight"
+      @reset-days="resetDays"
+    />
   </div>
 </template>
 
@@ -21,15 +36,19 @@ export default {
 
   data() {
     return {
+      isDay: null,
+      isNight: null,
       APIkey: "de3ff7e4a2e6e2ae885cc072dc222bc2",
       cities: [],
       modalOpen: null,
       edit: null,
+      addCityActive: null,
     };
   },
 
   created() {
     this.getCityWeather();
+    this.checkRoute();
   },
 
   methods: {
@@ -75,6 +94,33 @@ export default {
     toggleEdit() {
       this.edit = !this.edit;
     },
+
+    checkRoute() {
+      if (this.$route.name === "AddCity") {
+        this.addCityActive = true;
+      } else {
+        this.addCityActive = false;
+      }
+    },
+
+    dayTime() {
+      this.isDay = !this.isDay;
+    },
+
+    dayNight() {
+      this.isNight = !this.isNight;
+    },
+
+    resetDays() {
+      this.isDay = false;
+      this.isNight = false;
+    },
+  },
+
+  watch: {
+    $route() {
+      this.checkRoute();
+    },
   },
 };
 </script>
@@ -85,6 +131,34 @@ export default {
   padding: 0;
   box-sizing: border-box;
   font-family: "Quicksand", sans-serif;
+}
+
+body::-webkit-scrollbar {
+  width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+  box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.2) inset;
+  -webkit-box-shadow: 5px 5px 5px -5px rgba(34, 60, 80, 0.2) inset;
+  background-color: #f9f9fd;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #7090aa, #356184)
+}
+
+.day {
+  transition: 300ms ease all;
+  background-color: rgb(13, 217, 253);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.night {
+  transition: 300ms ease all;
+  background-color: rgb(30, 58, 109);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .main {
