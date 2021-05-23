@@ -149,7 +149,7 @@ body::-webkit-scrollbar-thumb {
 
 .day {
   transition: 300ms ease all;
-  background-color: rgb(13, 217, 253);
+  background-color: rgba(36, 221, 253, 0.8);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
